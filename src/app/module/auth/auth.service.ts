@@ -1,7 +1,11 @@
 import bcrypt from "bcryptjs";
 import type { TokenPayload } from "google-auth-library";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
-import { AuthProvider, Role, UserStatus } from "../../../generated/prisma/enums";
+import {
+	AuthProvider,
+	Role,
+	UserStatus,
+} from "../../../generated/prisma/enums";
 import config from "../../config";
 import { googleClient } from "../../lib/google";
 import { prisma } from "../../lib/prisma";
@@ -91,7 +95,10 @@ const loginUser = async (payload: ILoginUserPayload) => {
 		throw new Error("User is deleted");
 	}
 
-	const isPasswordMatched = await bcrypt.compare(password, user.password as string);
+	const isPasswordMatched = await bcrypt.compare(
+		password,
+		user.password as string,
+	);
 
 	if (!isPasswordMatched) {
 		throw new Error("Invalid credentials");
@@ -192,62 +199,109 @@ const refreshToken = async (token: string) => {
 };
 
 const googleLogin = async (payload: googlePayLoad) => {
+	let googleIdTokenPayload: TokenPayload | null | undefined = null;
 
-	let googleIdTokenPayload : TokenPayload | null | undefined = null;
-
-	try{
+	try {
 		const ticket = await googleClient.verifyIdToken({
-			idToken : payload.idToken,
-			audience : config.google_client_id
-		})
+			idToken: payload.idToken,
+			audience: config.google_client_id,
+		});
 
 		googleIdTokenPayload = ticket.getPayload();
-
-	}catch(error){
-
+	} catch (error) {
 		console.log("Google Id verification failed.");
 		throw new Error("Invalid or Expired Google Id Token.");
 	}
 
-	if(!googleIdTokenPayload){
+	if (!googleIdTokenPayload) {
 		throw new Error("Invalid or Expired Google Id Token.");
 	}
 
-	if(!googleIdTokenPayload.email){
-		throw new Error("Goggle Email not found.")
+	if (!googleIdTokenPayload.email) {
+		throw new Error("Goggle Email not found.");
 	}
 
-	if(!googleIdTokenPayload.name){
-		throw new Error("Goggle Name not found.")
+	if (!googleIdTokenPayload.name) {
+		throw new Error("Goggle Name not found.");
 	}
 
 	const isPatientExistWithGoogleAuth = await prisma.user.findUnique({
-		where : {
-			email : googleIdTokenPayload.email,
-			role : Role.PATIENT,
-			googleId : googleIdTokenPayload.sub
-		}
-	})
+		where: {
+			email: googleIdTokenPayload.email,
+			role: Role.PATIENT,
+			googleId: googleIdTokenPayload.sub,
+		},
+	});
 
 	let user = isPatientExistWithGoogleAuth;
 
-	if(!user){
-		 user = await prisma.user.create({
-			data : {
-				name : googleIdTokenPayload.name,
-				email : googleIdTokenPayload.email,
-				googleId : googleIdTokenPayload.sub,
-				authProvider : AuthProvider.GOOGLE
+	if (!isPatientExistWithGoogleAuth) {
+		const isPatientExistWithCredential = await prisma.user.findUnique({
+			where: {
+				email: googleIdTokenPayload.email,
+				role: Role.PATIENT,
+				authProvider: AuthProvider.CREDENTIAL,
+			},
+		});
+
+		if (isPatientExistWithCredential) {
+			if (isPatientExistWithCredential.status === UserStatus.BLOCKED) {
+				throw new Error("User is Blocked.");
 			}
-		})
+
+			if (
+				isPatientExistWithCredential.isDeleted ||
+				isPatientExistWithCredential.status === UserStatus.DELETED
+			) {
+				throw new Error("User is Deleted.");
+			}
+
+			user = await prisma.user.update({
+				where: {
+					id: isPatientExistWithCredential.id,
+				},
+				data: {
+					googleId: googleIdTokenPayload.sub,
+				},
+			});
+		} else {
+			//? actual google register here
+			user = await prisma.user.create({
+				data: {
+					name: googleIdTokenPayload.name,
+					email: googleIdTokenPayload.email,
+					googleId: googleIdTokenPayload.sub,
+					authProvider: AuthProvider.GOOGLE,
+					emailVerified: true,
+					patient: {
+						create: {
+							name: googleIdTokenPayload.name,
+							email: googleIdTokenPayload.email,
+						},
+					},
+				},
+			});
+		}
+	}
+
+	if (!user) {
+		throw new Error("User Not Found.");
+	}
+
+	if (user.status === UserStatus.BLOCKED) {
+		throw new Error("User is Blocked.");
+	}
+
+	if (user.isDeleted || user.status === UserStatus.DELETED) {
+		throw new Error("User is Deleted.");
 	}
 
 	const jwtPayload = {
-		userId : user?.id,
-		name : user?.name,
-		email : user?.email,
-		role : user?.role
-	}
+		userId: user?.id,
+		name: user?.name,
+		email: user?.email,
+		role: user?.role,
+	};
 
 	const accessToken = jwtUtils.createToken(
 		jwtPayload,
