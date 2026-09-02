@@ -1,9 +1,9 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import type { Application, NextFunction, Request, Response } from "express";
+import type { Application, Request, Response } from "express";
 import express from "express";
 import httpStatus from "http-status";
-import z, { email } from "zod";
+// import z from "zod";
 import config from "./app/config";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
@@ -27,32 +27,32 @@ app.use(cookieParser());
 
 app.use("/api/v1/auth", AuthRoutes);
 
+// app.post("/zod", async (req: Request, res: Response, next: NextFunction) => {
+// 		const UserZodSchema = z.object({
+// 			name: z.string(),
+// 			age: z.number().optional(),
+// 			isVarified: z.boolean(),
+// 			books: z.array(z.string()),
+// 		});
 
-app.post("/zod", async(req : Request, res : Response, next : NextFunction)=>{
-	try{
+// 		const payLoad = req.body;
 
-	const UserZodSchema = z.object({
-		name : z.string(),
-		age : z.number().optional(),
-		isVarified : z.boolean(),
-		books : z.array(z.string())
-	})
+// 		const result = UserZodSchema.safeParse(payLoad);
 
-	const payLoad = req.body;
+// 		if(!result.success){
+// 			console.log(result.error);
+// 		}
 
-	const result = UserZodSchema.parse(payLoad)
+// 		res.status(httpStatus.OK).json({
+// 			success: true,
+// 			message: "This is the zod validation route",
+// 			data: result,
+// 		});
+	
+// });
 
-	res.status(httpStatus.OK).json({
-		success : true,
-		message : "This is the zod validation route",
-		data : result
-	})
 
-	}catch(err){
-		console.log(err);
-		next();
-	}
-})
+
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
