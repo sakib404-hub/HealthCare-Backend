@@ -123,7 +123,6 @@ const refreshToken = catchAsync(
 
 const googleLogin = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
-
 		const payLoad = req.body;
 
 		const result = await AuthService.googleLogin(payLoad);
