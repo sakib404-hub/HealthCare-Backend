@@ -9,7 +9,7 @@ const router = Router();
 
 router.post("/register", validateRequest(UserValidation.PatientRegistratationZodSchema), AuthController.registerPatient);
 
-router.post("/login", AuthController.loginUser);
+router.post("/login", validateRequest(UserValidation.PatientLoginZodSchema), AuthController.loginUser);
 
 router.get(
 	"/me",
