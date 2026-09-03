@@ -16,7 +16,6 @@ const main = async () => {
 		await seedTesterAdmin();
 		await seedTesterDoctor();
 
-
 		console.log("Connected to the database successfully.");
 		app.listen(PORT, () => {
 			console.log(`Server is running on port ${PORT}`);
