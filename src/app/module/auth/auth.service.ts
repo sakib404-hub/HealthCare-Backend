@@ -20,6 +20,7 @@ import type {
 } from "./auth.interface";
 import crypto from "crypto"
 import redisClient from "../../lib/redis";
+import transporter from "../../lib/nodeMailer";
 
 const registerPatient = async (payload: IRegisterPatientPayload) => {
 	const { name, password, patient: patientData } = payload;
@@ -372,6 +373,12 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 		}
 	})
 
+	await transporter.sendMail({
+		from: `"PH Healthcare" <${config.smtp.sender}>`,
+		to: isUserExists.email,
+		subject: "Password Reset OTP - PH Healthcare",
+		text : `Your OTP is ${otp}`,
+	});
 };
 
 const resetPassword = async (payload: IResetPasswordPayload) => {

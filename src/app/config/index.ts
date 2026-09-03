@@ -30,4 +30,9 @@ export default {
 		username: process.env.REDIS_USERNAME!,
 		password: process.env.REDIS_PASSWORD!,
 	},
+	smtp: {
+		user: process.env.SMTP_USER!,
+		password: process.env.SMTP_PASSWORD!,
+		sender : process.env.EMAIL_SENDER!
+	},
 };
