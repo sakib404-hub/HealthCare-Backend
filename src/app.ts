@@ -3,12 +3,11 @@ import cors from "cors";
 import type { Application, NextFunction, Request, Response } from "express";
 import express from "express";
 import httpStatus from "http-status";
-// import z from "zod";
 import config from "./app/config";
+import crypto from "crypto"
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/module/auth/auth.route";
-import z from "zod";
 import redisClient from "./app/lib/redis";
 
 const app: Application = express();
@@ -31,12 +30,15 @@ app.use("/api/v1/auth", AuthRoutes);
 
 app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		redisClient.set("forgot-password-otp:patient1@gmail.com", "123456", {
-			expiration : {
-				type : "EX",
-				value : 60 //? the otp will be valid for only 60s
-			}
-		})
+		// const otp = crypto.randomInt(100000, 1000000);
+		// console.log(otp);
+
+		// redisClient.set("forgot-password-otp:patient1@gmail.com", "123456", {
+		// 	expiration : {
+		// 		type : "EX",
+		// 		value : 60 //? the otp will be valid for only 60s
+		// 	}
+		// })
 
 		res.status(httpStatus.OK).json({
 			success: true,

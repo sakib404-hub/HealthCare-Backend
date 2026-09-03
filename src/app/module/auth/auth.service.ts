@@ -12,13 +12,17 @@ import { prisma } from "../../lib/prisma";
 import { jwtUtils } from "../../utils/jwt";
 import type {
 	googlePayLoad,
+	IForgotPasswordPayload,
 	ILoginUserPayload,
 	IRegisterPatientPayload,
 	IRequestUser,
+	IResetPasswordPayload,
 } from "./auth.interface";
+import crypto from "crypto"
+import redisClient from "../../lib/redis";
 
 const registerPatient = async (payload: IRegisterPatientPayload) => {
-	const { name, password, patient : patientData } = payload;
+	const { name, password, patient: patientData } = payload;
 	const email = payload.email.trim().toLowerCase();
 
 	const isUserExists = await prisma.user.findUnique({
@@ -40,7 +44,11 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 			status: UserStatus.ACTIVE,
 			emailVerified: false,
 			patient: {
-				create: { name, email, contactNumber : patientData?.contactNumber || "" },
+				create: {
+					name,
+					email,
+					contactNumber: patientData?.contactNumber || "",
+				},
 			},
 		},
 		omit: { password: true },
@@ -325,10 +333,57 @@ const googleLogin = async (payload: googlePayLoad) => {
 	};
 };
 
+const forgotPassword = async (payload: IForgotPasswordPayload) => {
+	const { email } = payload;
+
+	const isUserExists = await prisma.user.findUnique({
+		where : {
+			email 
+		}
+	});
+
+	if(!isUserExists){
+		throw new Error("User not Found!");
+	}
+
+	if(isUserExists.status === UserStatus.BLOCKED){
+		throw new Error("User is Blocked!");
+	}
+
+	if(isUserExists.isDeleted || isUserExists.status === UserStatus.DELETED){
+		throw new Error("User is Deleted!")
+	}
+
+	if(isUserExists.authProvider !== AuthProvider.CREDENTIAL){
+		throw new Error("User Has Account With Google.");
+	}
+
+	// if(isUserExists.googleId && isUserExists.authProvider === AuthProvider.GOOGLE){
+	// 	throw new Error("User Has Acoount With Google.")
+	// }
+
+
+	const otp = crypto.randomInt(100000, 1000000).toString();
+	const key = `forgot-password-opt:${isUserExists.email}`
+	await redisClient.set(key, otp , {
+		expiration : {
+			type : "EX",
+			value : 60 * 5
+		}
+	})
+
+};
+
+const resetPassword = async (payload: IResetPasswordPayload) => {
+	// TODO: implement reset password functionality
+};
+
 export const AuthService = {
 	registerPatient,
 	loginUser,
 	getMe,
 	refreshToken,
 	googleLogin,
+	forgotPassword,
+	resetPassword,
 };
