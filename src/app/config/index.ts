@@ -17,7 +17,8 @@ export default {
 	google_client_id: process.env.GOOGLE_CLIENT_ID!,
 	super_admin_name: process.env.SUPER_ADMIN_NAME!,
 	super_admin_email: (process.env.SUPER_ADMIN_EMAIL || process.env.EMAIL)!,
-	super_admin_password: (process.env.SUPER_ADMIN_PASSWORD || process.env.PASSWORD)!,
+	super_admin_password: (process.env.SUPER_ADMIN_PASSWORD ||
+		process.env.PASSWORD)!,
 	tester_admin_name: process.env.TESTER_ADMIN_NAME!,
 	tester_admin_email: process.env.TESTER_ADMIN_EMAIL!,
 	tester_admin_password: process.env.TESTER_ADMIN_PASSWORD!,
@@ -33,6 +34,6 @@ export default {
 	smtp: {
 		user: process.env.SMTP_USER!,
 		password: process.env.SMTP_PASSWORD!,
-		sender : process.env.EMAIL_SENDER!
+		sender: process.env.EMAIL_SENDER!,
 	},
 };

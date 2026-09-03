@@ -5,7 +5,6 @@ import { sendResponse } from "../../utils/sendResponse";
 import type { IRequestUser } from "./auth.interface";
 import { AuthService } from "./auth.service";
 
-
 const registerPatient = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
 		const payload = req.body;
@@ -165,14 +164,13 @@ const forgotPassword = catchAsync(
 			statusCode: httpStatus.OK,
 			success: true,
 			message: `Otp sended successfully to : ${payload.email}`,
-			data: null
+			data: null,
 		});
 	},
 );
 
 const resetPassword = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
-
 		const payload = req.body;
 		await AuthService.resetPassword(payload);
 

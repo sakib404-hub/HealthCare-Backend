@@ -9,9 +9,9 @@ export interface IRegisterPatientPayload {
 	name: string;
 	email: string;
 	password: string;
-	patient : {
-		contactNumber ?: string;
-	}
+	patient: {
+		contactNumber?: string;
+	};
 }
 
 export interface IRequestUser {
@@ -30,7 +30,7 @@ export interface IForgotPasswordPayload {
 }
 
 export interface IResetPasswordPayload {
-	email : string;
-	newPassword : string;
-	otp : string;
+	email: string;
+	newPassword: string;
+	otp: string;
 }

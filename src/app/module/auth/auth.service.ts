@@ -22,7 +22,7 @@ import type {
 	IRequestUser,
 	IResetPasswordPayload,
 } from "./auth.interface";
-import path from "path"
+import path from "path";
 
 const registerPatient = async (payload: IRegisterPatientPayload) => {
 	const { name, password, patient: patientData } = payload;
@@ -374,16 +374,27 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 		},
 	});
 
-	const templatePath = path.join(process.cwd(), "src/app/templates/forgot-password-template.ejs") 
+	const templatePath = path.join(
+		process.cwd(),
+		"src/app/templates/forgot-password-template.ejs",
+	);
 	const html = await ejs.renderFile(templatePath, {
-		OTP : otp
-	})
+		OTP: otp,
+		name: isUserExists.name,
+		expirationMinutes: 5,
+	});
+
+	const sender = config.smtp.sender
+		? config.smtp.sender.includes("<")
+			? config.smtp.sender
+			: `"PH Healthcare" <${config.smtp.sender}>`
+		: `"PH Healthcare" <${config.smtp.user}>`;
 
 	await transporter.sendMail({
-		from: config.smtp.sender,
+		from: sender,
 		to: isUserExists.email,
-		subject: "Password Change",
-		text: `Your otp is : ${otp}`,
+		subject: "Your Password Reset OTP - PH Healthcare",
+		text: `Hello ${isUserExists.name},\n\nYour OTP for resetting your PH Healthcare password is: ${otp}.\n\nThis verification code expires in 5 minutes.\n\nIf you did not request this password reset, please ignore this email.\n\nBest regards,\nPH Healthcare Team`,
 		html: html,
 	});
 };
@@ -437,6 +448,30 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
 	});
 
 	await redisClient.del([key]);
+
+	const templatePath = path.join(
+		process.cwd(),
+		"src/app/templates/reset-password-success.ejs",
+	);
+	const loginUrl = `${config.frontend_url}/login`;
+	const html = await ejs.renderFile(templatePath, {
+		name: isUserExists.name,
+		loginUrl,
+	});
+
+	const sender = config.smtp.sender
+		? config.smtp.sender.includes("<")
+			? config.smtp.sender
+			: `"PH Healthcare" <${config.smtp.sender}>`
+		: `"PH Healthcare" <${config.smtp.user}>`;
+
+	await transporter.sendMail({
+		from: sender,
+		to: isUserExists.email,
+		subject: "Password Reset Successful - PH Healthcare",
+		text: `Hello ${isUserExists.name},\n\nYour password for your PH Healthcare account has been successfully reset.\n\nYou can now log in with your new password at: ${loginUrl}\n\nIf you did not perform this change, please contact our support team immediately at support@phhealthcare.com.\n\nBest regards,\nPH Healthcare Team`,
+		html: html,
+	});
 };
 
 export const AuthService = {

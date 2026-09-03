@@ -4,7 +4,7 @@ import type { Application, NextFunction, Request, Response } from "express";
 import express from "express";
 import httpStatus from "http-status";
 import config from "./app/config";
-import crypto from "crypto"
+import crypto from "crypto";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/module/auth/auth.route";
