@@ -375,7 +375,51 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 };
 
 const resetPassword = async (payload: IResetPasswordPayload) => {
-	// TODO: implement reset password functionality
+	const {email, otp, newPassword} = payload;
+
+	const isUserExists = await prisma.user.findUnique({
+		where : {
+			email
+		}
+	});
+
+	if(!isUserExists){
+		throw new Error("User not Found!.");
+	}
+
+	if(isUserExists.status === UserStatus.BLOCKED){
+		throw new Error("User is Blocked!");
+	}
+
+	if(isUserExists.isDeleted || isUserExists.status === UserStatus.DELETED){
+		throw new Error("User is Deleted!")
+	}
+
+	if(isUserExists.authProvider !== AuthProvider.CREDENTIAL){
+		throw new Error("User Has Account With Google.");
+	}
+
+	const key = `forgot-password-opt:${isUserExists.email}`
+	const radisOtp = await redisClient.get(key);
+
+	if(!radisOtp){
+		throw new Error("Invalid Opt.")
+	}
+	if(radisOtp !== otp){
+		throw new Error("OTP does not mathced.")
+	}
+
+	const hashedNewPassword = await bcrypt.hash(newPassword, Number(config.bcrypt_salt_rounds));
+	await prisma.user.update({
+		where : {
+			email : isUserExists.email
+		},
+		data : {
+			password : hashedNewPassword
+		}
+	})
+
+	await redisClient.del([key]);
 };
 
 export const AuthService = {
