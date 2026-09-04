@@ -9,15 +9,17 @@ const uploadProfileImage = catchAsync(async(req : Request, res : Response, next 
     if(!req.file){
         throw new Error("No File Provided.");
     }
+    
 
+    const userId = req.user?.userId;
     const buffer = req.file?.buffer;
 
-    const result = await UserServices.uploadProfileImage(buffer as Buffer)
+    const result = await UserServices.uploadProfileImage(buffer as Buffer, userId as string);
 
     return sendResponse(res, {
         statusCode : status.OK,
         success : true,
-        message : "",
+        message : "Your Image Updated Successfully.",
         data : result
     })
 })
