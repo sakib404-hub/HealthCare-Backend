@@ -21,6 +21,7 @@ import type {
 	IRegisterPatientPayload,
 	IRequestUser,
 	IResetPasswordPayload,
+	VerifyEmailPayLoad,
 } from "./auth.interface";
 import path from "path";
 import { ota } from "zod/locales";
@@ -73,7 +74,7 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 		name : name,
 		email : email,
 		otpValue : otp,
-		expiration : 5
+		expirationMinutes : 5
 	}
 
 	const html = await ejs.renderFile(templatePath, {
@@ -89,8 +90,6 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 		subject : "Email Verification request.",
 		html : html
 	})
-
-
 };
 
 const loginUser = async (payload: ILoginUserPayload) => {
@@ -482,33 +481,58 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
 	});
 };
 
-const verifyEmail = async()=>{
+const verifyEmail = async(payLoad : VerifyEmailPayLoad)=>{
+	const otp = payLoad.otpValue;
+	const email = payLoad.email.trim().toLowerCase();
 
-}
-
-export const AuthService = {
-	registerPatient,
-	loginUser,
-	getMe,
-	refreshToken,
-	googleLogin,
-	forgotPassword,
-	resetPassword,
-	verifyEmail
-};
+	const isUserExists = await prisma.user.findUnique({
+		where : {
+			email : email
+		}
+	})
 
 
+	if(isUserExists?.emailVerified){
+		throw new Error("Email Already Verified!");
+	}
+
+	if(isUserExists?.status === UserStatus.BLOCKED){
+		throw new Error("User is Blocked")
+	}
+
+	if (isUserExists?.isDeleted || isUserExists?.status === UserStatus.DELETED) {
+		throw new Error("User is Deleted!");
+	}
 
 
-/**
- * 	const createdUser = await prisma.user.create({
+	const key = `patient-register-otp:${email}`;
+	const redisOtp = await redisClient.get(key);
+
+	if(otp !== redisOtp){
+		throw new Error("Invalid Otp, try sending the otp again");
+	}
+
+	await redisClient.del(key);
+
+	const userRegistrationDatakey = `patient-register-data:${email}`;
+	const redisPatientData = await redisClient.get(userRegistrationDatakey);
+
+	if(!redisPatientData){
+		throw new Error("Otp time expired.")
+	}
+
+	await redisClient.del(userRegistrationDatakey);
+	const {name, hashedPassword, patient : patientData} = JSON.parse(redisPatientData);
+
+
+		const createdUser = await prisma.user.create({
 		data: {
 			name,
 			email,
 			password: hashedPassword,
 			role: Role.PATIENT,
 			status: UserStatus.ACTIVE,
-			emailVerified: false,
+			emailVerified: true,
 			patient: {
 				create: {
 					name,
@@ -547,4 +571,16 @@ export const AuthService = {
 		accessToken,
 		refreshToken,
 	};
- */
+ 
+}
+
+export const AuthService = {
+	registerPatient,
+	loginUser,
+	getMe,
+	refreshToken,
+	googleLogin,
+	forgotPassword,
+	resetPassword,
+	verifyEmail
+};

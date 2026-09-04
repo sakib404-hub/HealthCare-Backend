@@ -11,21 +11,6 @@ const registerPatient = catchAsync(
 
 	 await AuthService.registerPatient(payload);
 
-		//const { accessToken, refreshToken, user, patient } = result;
-
-		// res.cookie("accessToken", accessToken, {
-		// 	httpOnly: true,
-		// 	secure: false,
-		// 	sameSite: "none",
-		// 	maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
-		// });
-		// res.cookie("refreshToken", refreshToken, {
-		// 	httpOnly: true,
-		// 	secure: false,
-		// 	sameSite: "none",
-		// 	maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-		// });
-
 		sendResponse(res, {
 			statusCode: httpStatus.CREATED,
 			success: true,
@@ -179,7 +164,33 @@ const resetPassword = catchAsync(
 );
 
 const verifyEmail = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
+	const payLoad = req.body;
 
+	const {accessToken, refreshToken, user, patient} = await AuthService.verifyEmail(payLoad);
+
+	res.cookie("accessToken", accessToken, {
+			httpOnly: true,
+			secure: false,
+			sameSite: "none",
+			maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
+		});
+		res.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: false,
+			sameSite: "none",
+			maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+		});
+	return sendResponse(res, {
+		statusCode : httpStatus.OK,
+		success : true,
+		message : "Email verified Successfully",
+		data : {
+			accessToken,
+			refreshToken,
+			user,
+			patient
+		}
+	})
 })
 
 export const AuthController = {

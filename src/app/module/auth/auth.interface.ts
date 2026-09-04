@@ -34,3 +34,9 @@ export interface IResetPasswordPayload {
 	newPassword: string;
 	otp: string;
 }
+
+
+export interface VerifyEmailPayLoad {
+	email : string;
+	otpValue : string;
+}

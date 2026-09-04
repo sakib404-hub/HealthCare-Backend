@@ -41,6 +41,6 @@ router.post(
 	AuthController.resetPassword,
 );
 
-router.post('/verify-email', AuthController.verifyEmail);
+router.post('/verify-email',validateRequest(UserValidation.verifyEmailShcema), AuthController.verifyEmail);
 
 export const AuthRoutes = router;
