@@ -23,6 +23,7 @@ import type {
 	IResetPasswordPayload,
 } from "./auth.interface";
 import path from "path";
+import { ota } from "zod/locales";
 
 const registerPatient = async (payload: IRegisterPatientPayload) => {
 	const { name, password, patient: patientData } = payload;
@@ -38,52 +39,58 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 
 	const hashedPassword = await bcrypt.hash(password, 8);
 
-	const createdUser = await prisma.user.create({
-		data: {
-			name,
-			email,
-			password: hashedPassword,
-			role: Role.PATIENT,
-			status: UserStatus.ACTIVE,
-			emailVerified: false,
-			patient: {
-				create: {
-					name,
-					email,
-					contactNumber: patientData?.contactNumber || "",
-				},
-			},
-		},
-		omit: { password: true },
-		include: { patient: true },
+
+	//? start storing data into the redis
+
+	//? setting the otp in the redis with key and value otp
+	const otp = crypto.randomInt(100000, 1000000);
+	const otpKey = `patient-register-otp:${email}`;
+
+	await redisClient.set(otpKey, otp, {
+		expiration : {
+			type :"EX",
+			value : 60 * 5
+		}
 	});
 
-	const { patient, ...user } = createdUser;
-	const jwtPayload = {
-		userId: user.id,
-		name: user.name,
-		email: user.email,
-		role: user.role,
-	};
+	//? setting the register patient data with email key for verification
+	const patientRegistrationDataKey = `patient-register-data:${email}`
+	const redisUserDataPayLoad = {
+		name,
+		email,
+		hashedPassword,
+		patient : patientData
+	}
+	await redisClient.set(patientRegistrationDataKey, JSON.stringify(redisUserDataPayLoad), {
+		expiration : {
+			type : "EX",
+			value : 60 * 5
+		}
+	})
 
-	const accessToken = jwtUtils.createToken(
-		jwtPayload,
-		config.jwt_access_secret,
-		config.jwt_access_expires_in as SignOptions,
-	);
+	const templatePath = path.join(process.cwd(), "src/app/templates/verifyEmail.ejs");
+	const templateData = {
+		name : name,
+		email : email,
+		otpValue : otp,
+		expiration : 5
+	}
 
-	const refreshToken = jwtUtils.createToken(
-		jwtPayload,
-		config.jwt_refresh_secret,
-		config.jwt_refresh_expires_in as SignOptions,
-	);
+	const html = await ejs.renderFile(templatePath, {
+		name : templateData.name,
+		email : templateData.email,
+		otpValue : templateData.otpValue,
+		expirationMintues : 5
+	})
 
-	return {
-		user,
-		patient,
-		accessToken,
-		refreshToken,
-	};
+	await transporter.sendMail({
+		sender : config.smtp.sender,
+		to : email,
+		subject : "Email Verification request.",
+		html : html
+	})
+
+
 };
 
 const loginUser = async (payload: ILoginUserPayload) => {
@@ -454,6 +461,7 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
 		"src/app/templates/reset-password-success.ejs",
 	);
 	const loginUrl = `${config.frontend_url}/login`;
+
 	const html = await ejs.renderFile(templatePath, {
 		name: isUserExists.name,
 		loginUrl,
@@ -474,6 +482,10 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
 	});
 };
 
+const verifyEmail = async()=>{
+
+}
+
 export const AuthService = {
 	registerPatient,
 	loginUser,
@@ -482,4 +494,57 @@ export const AuthService = {
 	googleLogin,
 	forgotPassword,
 	resetPassword,
+	verifyEmail
 };
+
+
+
+
+/**
+ * 	const createdUser = await prisma.user.create({
+		data: {
+			name,
+			email,
+			password: hashedPassword,
+			role: Role.PATIENT,
+			status: UserStatus.ACTIVE,
+			emailVerified: false,
+			patient: {
+				create: {
+					name,
+					email,
+					contactNumber: patientData?.contactNumber || "",
+				},
+			},
+		},
+		omit: { password: true },
+		include: { patient: true },
+	});
+
+	const { patient, ...user } = createdUser;
+	const jwtPayload = {
+		userId: user.id,
+		name: user.name,
+		email: user.email,
+		role: user.role,
+	};
+
+	const accessToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_access_secret,
+		config.jwt_access_expires_in as SignOptions,
+	);
+
+	const refreshToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_refresh_secret,
+		config.jwt_refresh_expires_in as SignOptions,
+	);
+
+	return {
+		user,
+		patient,
+		accessToken,
+		refreshToken,
+	};
+ */

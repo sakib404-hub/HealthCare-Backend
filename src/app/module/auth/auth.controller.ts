@@ -9,33 +9,28 @@ const registerPatient = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
 		const payload = req.body;
 
-		const result = await AuthService.registerPatient(payload);
+	 await AuthService.registerPatient(payload);
 
-		const { accessToken, refreshToken, user, patient } = result;
+		//const { accessToken, refreshToken, user, patient } = result;
 
-		res.cookie("accessToken", accessToken, {
-			httpOnly: true,
-			secure: false,
-			sameSite: "none",
-			maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
-		});
-		res.cookie("refreshToken", refreshToken, {
-			httpOnly: true,
-			secure: false,
-			sameSite: "none",
-			maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-		});
+		// res.cookie("accessToken", accessToken, {
+		// 	httpOnly: true,
+		// 	secure: false,
+		// 	sameSite: "none",
+		// 	maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
+		// });
+		// res.cookie("refreshToken", refreshToken, {
+		// 	httpOnly: true,
+		// 	secure: false,
+		// 	sameSite: "none",
+		// 	maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+		// });
 
 		sendResponse(res, {
 			statusCode: httpStatus.CREATED,
 			success: true,
 			message: "Patient registered successfully",
-			data: {
-				accessToken,
-				refreshToken,
-				user,
-				patient,
-			},
+			data: null,
 		});
 	},
 );
@@ -183,6 +178,10 @@ const resetPassword = catchAsync(
 	},
 );
 
+const verifyEmail = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
+
+})
+
 export const AuthController = {
 	registerPatient,
 	loginUser,
@@ -191,4 +190,5 @@ export const AuthController = {
 	googleLogin,
 	forgotPassword,
 	resetPassword,
+	verifyEmail
 };
