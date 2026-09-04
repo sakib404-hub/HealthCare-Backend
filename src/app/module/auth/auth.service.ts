@@ -3,6 +3,7 @@ import crypto from "crypto";
 import ejs from "ejs";
 import type { TokenPayload } from "google-auth-library";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
+import path from "path";
 import {
 	AuthProvider,
 	Role,
@@ -23,8 +24,6 @@ import type {
 	IResetPasswordPayload,
 	VerifyEmailPayLoad,
 } from "./auth.interface";
-import path from "path";
-import { ota } from "zod/locales";
 
 const registerPatient = async (payload: IRegisterPatientPayload) => {
 	const { name, password, patient: patientData } = payload;
