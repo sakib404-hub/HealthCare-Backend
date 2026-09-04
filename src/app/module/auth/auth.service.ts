@@ -256,6 +256,8 @@ const googleLogin = async (payload: googlePayLoad) => {
 
 	let user = isPatientExistWithGoogleAuth;
 
+	let isNewUser = false;
+
 	if (!isPatientExistWithGoogleAuth) {
 		const isPatientExistWithCredential = await prisma.user.findUnique({
 			where: {
@@ -302,6 +304,7 @@ const googleLogin = async (payload: googlePayLoad) => {
 					},
 				},
 			});
+			isNewUser = true;
 		}
 	}
 
@@ -315,6 +318,32 @@ const googleLogin = async (payload: googlePayLoad) => {
 
 	if (user.isDeleted || user.status === UserStatus.DELETED) {
 		throw new Error("User is Deleted.");
+	}
+
+	if (isNewUser) {
+		try {
+			const templatePath = path.join(
+				process.cwd(),
+				"src/app/templates/google-login-success.ejs",
+			);
+
+			const loginUrl = config.frontend_url ? `${config.frontend_url}/login` : "";
+			const templateData = {
+				...user,
+				loginUrl,
+			};
+
+			const html = await ejs.renderFile(templatePath, templateData);
+
+			await transporter.sendMail({
+				from: config.smtp.sender,
+				to: user.email,
+				subject: "Welcome to PH-HealthCare",
+				html: html,
+			});
+		} catch (error) {
+			console.error("Failed to send welcome email for Google sign-in:", error);
+		}
 	}
 
 	const jwtPayload = {
@@ -512,6 +541,7 @@ const verifyEmail = async(payLoad : VerifyEmailPayLoad)=>{
 		throw new Error("Invalid Otp, try sending the otp again");
 	}
 
+	//? deleting the otp after checking
 	await redisClient.del(key);
 
 	const userRegistrationDatakey = `patient-register-data:${email}`;
@@ -521,7 +551,6 @@ const verifyEmail = async(payLoad : VerifyEmailPayLoad)=>{
 		throw new Error("Otp time expired.")
 	}
 
-	await redisClient.del(userRegistrationDatakey);
 	const {name, hashedPassword, patient : patientData} = JSON.parse(redisPatientData);
 
 
@@ -545,6 +574,28 @@ const verifyEmail = async(payLoad : VerifyEmailPayLoad)=>{
 		include: { patient: true },
 	});
 
+	//? deleting the data from the radis after the user is created
+	await redisClient.del(userRegistrationDatakey);
+
+	const templatePath = path.join(process.cwd(), "src/app/templates/verify-email-success.ejs");
+
+	const loginUrl = config.frontend_url ? `${config.frontend_url}/login` : "";
+	const templateData = {
+		...createdUser,
+		loginUrl,
+	};
+
+	const html = await ejs.renderFile(templatePath, templateData);
+
+	await transporter.sendMail({
+		from : config.smtp.sender,
+		to : createdUser.email,
+		subject : "Welcome to PH-HealthCare",
+		html : html
+	})
+
+
+	//? after sending the welcome email logging in the user
 	const { patient, ...user } = createdUser;
 	const jwtPayload = {
 		userId: user.id,

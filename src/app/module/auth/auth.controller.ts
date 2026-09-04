@@ -14,7 +14,7 @@ const registerPatient = catchAsync(
 		sendResponse(res, {
 			statusCode: httpStatus.CREATED,
 			success: true,
-			message: "Patient registered successfully",
+			message: "Verification Email sent.",
 			data: null,
 		});
 	},
