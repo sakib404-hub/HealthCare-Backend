@@ -10,6 +10,7 @@ import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/module/auth/auth.route";
 import redisClient from "./app/lib/redis";
 import { UserRoutes } from "./app/module/user/user.route";
+import { getBkashIdToken } from "./app/lib/bkash";
 
 const app: Application = express();
 
@@ -33,20 +34,12 @@ app.use('/api/v1/user', UserRoutes);
 
 app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		// const otp = crypto.randomInt(100000, 1000000);
-		// console.log(otp);
-
-		// redisClient.set("forgot-password-otp:patient1@gmail.com", "123456", {
-		// 	expiration : {
-		// 		type : "EX",
-		// 		value : 60 //? the otp will be valid for only 60s
-		// 	}
-		// })
-
+		
+		const result = await getBkashIdToken();
 		res.status(httpStatus.OK).json({
 			success: true,
 			message: "This is the zod validation route",
-			data: null,
+			data: result,
 		});
 	} catch (err) {
 		console.log("Error executing the test code : ", err);
