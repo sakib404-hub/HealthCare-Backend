@@ -4,11 +4,9 @@ import type { Application, NextFunction, Request, Response } from "express";
 import express from "express";
 import httpStatus from "http-status";
 import config from "./app/config";
-import crypto from "crypto";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/module/auth/auth.route";
-import redisClient from "./app/lib/redis";
 import { UserRoutes } from "./app/module/user/user.route";
 import { getBkashIdToken } from "./app/lib/bkash";
 
