@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { appointmentController } from "./appointment.controller";
+import { AppointmentController } from "./appointment.controller";
 
 const router = Router();
 
-router.post('/book-appointments', appointmentController.bookAppointments)
+router.post('/book-appointment', AppointmentController.bookAppointments)
 
-export const AppointmentRouter = Router;
+//? call back url of bkash
+router.post('/book-appointment/payment/callback', ()=>{});
+
+export const AppointmentRouter = router;

@@ -47,6 +47,7 @@ app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
+
 const formatUptime = (seconds: number): string => {
 	const days = Math.floor(seconds / (3600 * 24));
 	const hours = Math.floor((seconds % (3600 * 24)) / 3600);
