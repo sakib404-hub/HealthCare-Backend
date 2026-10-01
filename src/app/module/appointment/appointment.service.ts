@@ -28,7 +28,7 @@ const bookAppointments = async () => {
         currency: "BDT",
         intent: "sale",
         //? agreementID: "1234567881", //? accroding to us appointmentid
-        merchantInvoiceNumber: "INV-20261001-99812", //? appointmentId
+        merchantInvoiceNumber: "INV-20261001-99812-1", //? appointmentId
       }),
     }
   );
@@ -73,7 +73,32 @@ const bookAppointmentCallBack = async(query :  Record<string, any>)=>{
 
     const executedPayementResponse = await executedPayment.json();
 
-    return executedPayementResponse;
+
+    if(status === "success"){
+      return {
+        executedPayementResponse,
+        redirectUrl : `${config.frontend_url}/dashboard/my-appointments?status=success`
+      }
+    }
+
+    if(status === 'failure'){
+      return {
+        executedPayementResponse,
+        redirectUrl  : `${config.frontend_url}/dashboard/my-appointments?status=failure`
+      }
+    }
+
+      if(status === 'cancel'){
+      return {
+        executedPayementResponse,
+        redirectUrl  : `${config.frontend_url}/dashboard/my-appointments?status=cancel`
+      }
+    }
+
+    return {
+      executedPayementResponse,
+      redirectUrl  : `${config.frontend_url}/dashboard/my-appointments`
+    }
 }
 export const AppointmentServices = {
   bookAppointments,
