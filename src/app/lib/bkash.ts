@@ -7,10 +7,17 @@ export const getBkashIdToken = async () => {
 		const RefreshTokenKey = "bkash:refreshToken";
 
 		let bkashIdToken = await redisClient.get(IdTokenKey);
-		let bkashRefreshToken = await redisClient.get(RefreshTokenKey);
+		const bkashRefreshToken = await redisClient.get(RefreshTokenKey);
 
         const bkashIdTokenTTL = await redisClient.ttl(IdTokenKey);
         const bkashRefreshTokenTTL = await redisClient.ttl(RefreshTokenKey)
+
+		// console.log({
+		// 	bkashIdToken,
+		// 	bkashRefreshToken,
+		// 	bkashIdTokenTTL,
+		// 	bkashRefreshTokenTTL
+		// })
 
         //? if bkash id token is not found but bkash refresh token is still there
         //? bkash id token less then 10 minutes
@@ -34,6 +41,10 @@ export const getBkashIdToken = async () => {
 					}),
 				},
 			);
+
+			if(!refreshTokenResponse.ok){
+				throw new Error("Bkash Refresh Token Grant Failure.");
+			}
 
             const bkashRefreshTokenResponse = await refreshTokenResponse.json();
 
