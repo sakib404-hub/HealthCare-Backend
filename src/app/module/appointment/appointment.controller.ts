@@ -17,6 +17,18 @@ const bookAppointments = catchAsync(async(req : Request, res : Response, next : 
 })
 
 
+const bookAppointmentsCallBack = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
+    
+    return sendResponse(res, {
+        success : true,
+        statusCode : http.OK,
+        message : "Appointment Posted Successfully.",
+        data :{}
+    })
+})
+
+
 export const AppointmentController = {
-    bookAppointments
+    bookAppointments,
+    bookAppointmentsCallBack
 }
