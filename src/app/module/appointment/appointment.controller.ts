@@ -12,7 +12,7 @@ const bookAppointments = catchAsync(async(req : Request, res : Response, next : 
     return sendResponse(res, {
         success : true,
         statusCode : http.OK,
-        message : "Appointment Posted Successfully.",
+        message : "Pay For your appointment confirmation.",
         data : result
     })
 })
@@ -26,7 +26,23 @@ const bookAppointmentsCallBack = catchAsync(async(req : Request, res : Response,
 })
 
 
+const payAppointment = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
+    const payLoad = req.body;
+    const user = req.user!;
+    
+    const result = await AppointmentServices.payAppointment(payLoad, user);
+
+    return sendResponse(res, {
+        success : true,
+        statusCode : http.OK,
+        message : "Pay For your appointment confirmation.",
+        data : result
+    })
+})
+
+
 export const AppointmentController = {
     bookAppointments,
-    bookAppointmentsCallBack
+    bookAppointmentsCallBack,
+    payAppointment
 }

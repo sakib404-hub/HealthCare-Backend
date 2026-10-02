@@ -1,0 +1,3 @@
+interface PayAppointment{
+    "appointmentId" : string;
+}
