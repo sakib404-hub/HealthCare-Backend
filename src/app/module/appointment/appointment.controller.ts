@@ -5,7 +5,9 @@ import { sendResponse } from "../../utils/sendResponse";
 import { AppointmentServices } from "./appointment.service";
 
 const bookAppointments = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
-    const result = await AppointmentServices.bookAppointments();
+    const payLoad = req.body;
+    const user = req.user!;
+    const result = await AppointmentServices.bookAppointments(payLoad, user);
 
     return sendResponse(res, {
         success : true,
