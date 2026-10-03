@@ -41,8 +41,25 @@ const payAppointment = catchAsync(async(req : Request, res : Response, next : Ne
 })
 
 
+const cancelAppointment = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
+    const payLoad = req.body;
+    
+    const result = await AppointmentServices.cancelAppointment(payLoad);
+
+    return sendResponse(res, {
+        success : true,
+        statusCode : http.OK,
+        message : "Your appointment is cancelled.",
+        data : result
+    })
+})
+
+
+
+
 export const AppointmentController = {
     bookAppointments,
     bookAppointmentsCallBack,
-    payAppointment
+    payAppointment,
+    cancelAppointment
 }
