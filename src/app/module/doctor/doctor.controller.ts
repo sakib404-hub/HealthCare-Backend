@@ -6,13 +6,14 @@ import { sendResponse } from "../../utils/sendResponse";
 
 const applyAsDoctor = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
 
-    const resume = req.file;
+    const files = req.files as { [fieldname : string] : Express.Multer.File[]};
 
-    const additionalFiles = req.files;
+    const resume = files.resume ? files.resume[0] : null;
+    const additionalFiles = files.additionalFiles ? files.additionalFiles : null;
 
-    const data = req.body;
+    const data = JSON.parse(req.body.data);
 
-    console.log(resume, additionalFiles , data);
+    console.log({resume, additionalFiles , data});
 
 
     return sendResponse(res, {
