@@ -12,7 +12,7 @@ router.post('/book-appointment', auth(Role.PATIENT), AppointmentController.bookA
 router.post('/pay-appointment', auth(Role.PATIENT), AppointmentController.payAppointment);
 
 //? cancel the appointment that is not ongoing or completed
-router.put('/cancel-appointment', auth(Role.PATIENT), AppointmentController.cancelAppointment);
+router.post('/cancel-appointment', auth(Role.PATIENT, Role.ADMIN, Role.SUPER_ADMIN), AppointmentController.cancelAppointment);
 
 //? call back url of bkash
 router.get('/book-appointment/payment/callback', AppointmentController.bookAppointmentsCallBack);
