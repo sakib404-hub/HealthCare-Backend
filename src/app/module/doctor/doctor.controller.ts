@@ -50,7 +50,24 @@ const verifyDoctorEmail = catchAsync(
 	},
 );
 
+const approveDoctor = catchAsync(
+	async (req: Request, res: Response, next: NextFunction) => {
+		const payLoad = req.body;
+		const userId = req.user?.userId;
+
+		const result = await DoctorServices.approveDoctor(payLoad, userId as string);
+
+		return sendResponse(res, {
+			success: true,
+			statusCode: status.OK,
+			message: "Doctor Status is Approved.",
+			data: {},
+		});
+	},
+);
+
 export const DoctorController = {
 	applyAsDoctor,
 	verifyDoctorEmail,
+	approveDoctor
 };

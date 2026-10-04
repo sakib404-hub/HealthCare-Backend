@@ -1,5 +1,7 @@
 import { Router } from "express";
+import { Role } from "../../../generated/prisma/enums";
 import upload from "../../lib/multer";
+import { auth } from "../../middleware/checkAuth";
 import { DoctorController } from "./doctor.controller";
 
 const router = Router();
@@ -17,5 +19,7 @@ router.post(
 	"/apply-as-doctor/verify-email",
 	DoctorController.verifyDoctorEmail,
 );
+
+router.post('/approve-doctor',auth(Role.ADMIN, Role.SUPER_ADMIN), DoctorController.approveDoctor);
 
 export const DoctorRouter = router;
