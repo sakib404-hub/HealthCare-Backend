@@ -29,3 +29,9 @@ export interface IApplyAsDoctorPayload {
 	user: IUserPayload;
 	doctor: IDoctorPayload;
 }
+
+
+export interface VerifyDoctorEmail {
+	otp : string;
+	email : string;
+} 

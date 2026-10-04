@@ -9,7 +9,8 @@ import cloudinary from "../../lib/cloudinary";
 import transporter from "../../lib/nodeMailer";
 import { prisma } from "../../lib/prisma";
 import redisClient from "../../lib/redis";
-import type { IApplyAsDoctorPayload } from "./doctor.interface";
+import type { IApplyAsDoctorPayload, VerifyDoctorEmail } from "./doctor.interface";
+import { tr } from "zod/locales";
 
 const applyAsDoctor = async (
 	payLoad: IApplyAsDoctorPayload,
@@ -96,7 +97,7 @@ const applyAsDoctor = async (
 		},
 	});
 
-	const optKey = `doctor-application:otp:${payLoad.user.email}`;
+	const optKey = `doctor-application-otp:${payLoad.user.email}`;
 	const otpValue = crypto.randomInt(100000, 1000000).toString();
 	const expirationSeconds = 60 * 60;
 
@@ -132,7 +133,53 @@ const applyAsDoctor = async (
 	return doctorApplication;
 };
 
-const verifyDoctorEmail = async (payLoad: any) => {};
+const verifyDoctorEmail = async (payLoad: VerifyDoctorEmail) => {
+	const otp = payLoad.otp;
+	const email = payLoad.email.trim().toLowerCase();
+
+	const existingUser = await prisma.user.findUnique({
+		where : {
+			email : email,
+			role : Role.DOCTOR
+		}
+	});
+
+	if(!existingUser){
+		throw new Error("Doctor Application Not Found.");
+	}
+
+	if(existingUser.emailVerified){
+		throw new Error("Email Already Verified.");
+	}
+
+	const optKey = `doctor-application-otp:${email}`
+	const redisOtp = await redisClient.get(optKey);
+
+	//? if otp does not match with one another 
+	if(redisOtp !== otp){
+		throw new Error("Otp Does not Matched.Try Again");
+	}
+
+	//? when otp matched we will delete the redis otp and updated the user
+	await redisClient.del(optKey)
+
+	const updatedUser = await prisma.user.update({
+		where : {
+			email : email,
+		},
+		data : {
+			emailVerified : true
+		},
+		omit : {
+			password : true
+		},
+		include : {
+			doctor : true
+		}
+	})
+
+	return updatedUser;
+};
 
 export const DoctorServices = {
 	applyAsDoctor,
