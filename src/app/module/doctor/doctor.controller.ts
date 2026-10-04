@@ -53,9 +53,9 @@ const verifyDoctorEmail = catchAsync(
 const approveDoctor = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
 		const payLoad = req.body;
-		const userId = req.user?.userId;
+		const user = req.user;
 
-		const result = await DoctorServices.approveDoctor(payLoad, userId as string);
+		const result = await DoctorServices.approveDoctor(payLoad, user!);
 
 		return sendResponse(res, {
 			success: true,

@@ -9,6 +9,7 @@ import cloudinary from "../../lib/cloudinary";
 import transporter from "../../lib/nodeMailer";
 import { prisma } from "../../lib/prisma";
 import redisClient from "../../lib/redis";
+import type { RequestUser } from "../../middleware/checkAuth";
 import type { IApplyAsDoctorPayload, IApproveDoctorPayLoad, VerifyDoctorEmail } from "./doctor.interface";
 
 const applyAsDoctor = async (
@@ -180,7 +181,7 @@ const verifyDoctorEmail = async (payLoad: VerifyDoctorEmail) => {
 	return updatedUser;
 };
 
-const approveDoctor = async(payLoad : IApproveDoctorPayLoad, reviewedBy : string) {
+const approveDoctor = async(payLoad : IApproveDoctorPayLoad, reviewedBy : RequestUser) {
 	const { doctorId , verificationStatus, rejectionReason} = payLoad;
 
 	const existingDoctor = await prisma.doctor.findUnique({
@@ -224,12 +225,32 @@ const approveDoctor = async(payLoad : IApproveDoctorPayLoad, reviewedBy : string
 		data : {
 			verifactionStatus : verificationStatus,
 			rejectionReason : verificationStatus === DoctorVerificationStatus.REJECTED ? rejectionReason : null,
-			reviewedBy : reviewedBy,
+			reviewedBy : reviewedBy.userId,
 			reviewedAt : new Date()
 		}
 	})
 
-	
+	const isApproved = verificationStatus === DoctorVerificationStatus.APPROVED;
+
+	// approve-doctor.ejs
+	// reject-doctor.ejs
+	const templatePath = path.join(process.cwd(), `src/app/templates/${
+		isApproved ? 'approve-doctor.ejs' : 'reject-doctor.ejs'
+	}`);
+
+	const templateData = {
+		name : updateDoctor.name,
+		reason : updateDoctor.rejectionReason
+	}
+
+	const html = await ejs.renderFile(templatePath, templateData);
+
+	await transporter.sendMail({
+		sender : config.smtp.sender,
+		to : updateDoctor.email,
+		subject : isApproved ? 'Your Doctor Application Has been Approved' : 'Your Doctor Application Has been Rejected',
+		html
+	})
 
 	return updateDoctor;
 
