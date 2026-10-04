@@ -30,15 +30,14 @@ app.use(cookieParser());
 
 app.use("/api/v1/auth", AuthRoutes);
 
-app.use('/api/v1/user', UserRoutes);
+app.use("/api/v1/user", UserRoutes);
 
-app.use('/api/v1/appointment', AppointmentRouter);
+app.use("/api/v1/appointment", AppointmentRouter);
 
-app.use('/api/v1/doctor', DoctorRouter);
+app.use("/api/v1/doctor", DoctorRouter);
 
 app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		
 		const result = await getBkashIdToken();
 		res.status(httpStatus.OK).json({
 			success: true,
@@ -49,7 +48,6 @@ app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
 		console.log("Error executing the test code : ", err);
 	}
 });
-
 
 const formatUptime = (seconds: number): string => {
 	const days = Math.floor(seconds / (3600 * 24));

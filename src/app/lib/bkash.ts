@@ -9,8 +9,8 @@ export const getBkashIdToken = async () => {
 		let bkashIdToken = await redisClient.get(IdTokenKey);
 		const bkashRefreshToken = await redisClient.get(RefreshTokenKey);
 
-        const bkashIdTokenTTL = await redisClient.ttl(IdTokenKey);
-        const bkashRefreshTokenTTL = await redisClient.ttl(RefreshTokenKey)
+		const bkashIdTokenTTL = await redisClient.ttl(IdTokenKey);
+		const bkashRefreshTokenTTL = await redisClient.ttl(RefreshTokenKey);
 
 		// console.log({
 		// 	bkashIdToken,
@@ -19,11 +19,15 @@ export const getBkashIdToken = async () => {
 		// 	bkashRefreshTokenTTL
 		// })
 
-        //? if bkash id token is not found but bkash refresh token is still there
-        //? bkash id token less then 10 minutes
-        //? we have the refresh token
-        //? and the ttl for refresh token is greater then 10 minutes
-		if ((!bkashIdToken || bkashIdTokenTTL <= 600) && bkashRefreshToken && bkashRefreshTokenTTL > 600) {
+		//? if bkash id token is not found but bkash refresh token is still there
+		//? bkash id token less then 10 minutes
+		//? we have the refresh token
+		//? and the ttl for refresh token is greater then 10 minutes
+		if (
+			(!bkashIdToken || bkashIdTokenTTL <= 600) &&
+			bkashRefreshToken &&
+			bkashRefreshTokenTTL > 600
+		) {
 			const refreshTokenResponse = await fetch(
 				`${config.bkash.base_url}/tokenized/checkout/token/refresh`,
 				{
@@ -42,26 +46,26 @@ export const getBkashIdToken = async () => {
 				},
 			);
 
-			if(!refreshTokenResponse.ok){
+			if (!refreshTokenResponse.ok) {
 				throw new Error("Bkash Refresh Token Grant Failure.");
 			}
 
-            const bkashRefreshTokenResponse = await refreshTokenResponse.json();
+			const bkashRefreshTokenResponse = await refreshTokenResponse.json();
 
-            bkashIdToken = bkashRefreshTokenResponse.id_token as string;
+			bkashIdToken = bkashRefreshTokenResponse.id_token as string;
 
-            //? setting the radis token again
-            await redisClient.set(IdTokenKey, bkashIdToken, {
-                expiration : {
-                    type : "EX",
-                    value : 60 * 60
-                }
-            })
+			//? setting the radis token again
+			await redisClient.set(IdTokenKey, bkashIdToken, {
+				expiration: {
+					type: "EX",
+					value: 60 * 60,
+				},
+			});
 
-            return  bkashIdToken;
+			return bkashIdToken;
 		}
- 
-        //? checking if the bkashIdTokenTTl is grater then ten minutes
+
+		//? checking if the bkashIdTokenTTl is grater then ten minutes
 		if (bkashIdTokenTTL > 600) {
 			return bkashIdToken;
 		}
@@ -106,7 +110,6 @@ export const getBkashIdToken = async () => {
 		});
 		bkashIdToken = result.id_token;
 		return bkashIdToken;
-
 	} catch (error: any) {
 		throw new Error(error.message);
 	}

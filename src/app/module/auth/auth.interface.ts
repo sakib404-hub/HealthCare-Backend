@@ -35,8 +35,7 @@ export interface IResetPasswordPayload {
 	otp: string;
 }
 
-
 export interface VerifyEmailPayLoad {
-	email : string;
-	otpValue : string;
+	email: string;
+	otpValue: string;
 }

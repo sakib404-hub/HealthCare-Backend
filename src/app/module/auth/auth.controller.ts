@@ -9,7 +9,7 @@ const registerPatient = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
 		const payload = req.body;
 
-	 await AuthService.registerPatient(payload);
+		await AuthService.registerPatient(payload);
 
 		sendResponse(res, {
 			statusCode: httpStatus.CREATED,
@@ -163,12 +163,14 @@ const resetPassword = catchAsync(
 	},
 );
 
-const verifyEmail = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
-	const payLoad = req.body;
+const verifyEmail = catchAsync(
+	async (req: Request, res: Response, next: NextFunction) => {
+		const payLoad = req.body;
 
-	const {accessToken, refreshToken, user, patient} = await AuthService.verifyEmail(payLoad);
+		const { accessToken, refreshToken, user, patient } =
+			await AuthService.verifyEmail(payLoad);
 
-	res.cookie("accessToken", accessToken, {
+		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
 			secure: false,
 			sameSite: "none",
@@ -180,18 +182,19 @@ const verifyEmail = catchAsync(async(req : Request, res : Response, next : NextF
 			sameSite: "none",
 			maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 		});
-	return sendResponse(res, {
-		statusCode : httpStatus.OK,
-		success : true,
-		message : "Email verified Successfully",
-		data : {
-			accessToken,
-			refreshToken,
-			user,
-			patient
-		}
-	})
-})
+		return sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: "Email verified Successfully",
+			data: {
+				accessToken,
+				refreshToken,
+				user,
+				patient,
+			},
+		});
+	},
+);
 
 export const AuthController = {
 	registerPatient,
@@ -201,5 +204,5 @@ export const AuthController = {
 	googleLogin,
 	forgotPassword,
 	resetPassword,
-	verifyEmail
+	verifyEmail,
 };

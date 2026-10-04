@@ -14,7 +14,9 @@ model Doctor {
   contactNumber   String?
 
   resume           String?
-  additiionalFiles String[]
+  resumePublicId  String?
+
+  additionalFiles Json? //? stores both the url and the public id
 
   verifactionStatus DoctorVerificationStatus @default(PENDING)
   rejectionReason   String?
