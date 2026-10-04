@@ -35,6 +35,12 @@ const applyAsDoctor = catchAsync(
 	},
 );
 
+
+const verifyEmail = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
+
+})
+
 export const DoctorController = {
 	applyAsDoctor,
+	verifyEmail
 };

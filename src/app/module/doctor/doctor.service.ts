@@ -1,9 +1,12 @@
 import bcrypt from "bcryptjs";
 import type { UploadApiResponse } from "cloudinary";
+import crypto from "crypto";
+import path from 'path'
 import { Role } from "../../../generated/prisma/enums";
 import config from "../../config";
 import cloudinary from "../../lib/cloudinary";
 import { prisma } from "../../lib/prisma";
+import redisClient from "../../lib/redis";
 import type { IApplyAsDoctorPayload } from "./doctor.interface";
 
 const applyAsDoctor = async (
@@ -91,10 +94,30 @@ const applyAsDoctor = async (
     }
 	});
 
+
+	const optKey = `doctor-application:otp:${payLoad.user.email}`
+	const otpValue = crypto.randomInt(100000, 1000000).toString();
+	const expirationSeconds = 60 * 60;
+
+	await redisClient.set(optKey, otpValue, {
+		expiration : {
+			type : 'EX',
+			value : expirationSeconds
+		}
+	})
+
+	const templatePath = path.join(process.cwd(), "src/templates/verify-doctor-email.ejs")
+
 	//? returning the doctor application
 	return doctorApplication;
 };
 
+
+const verifyEmail = async()=>{
+
+}
+
 export const DoctorServices = {
 	applyAsDoctor,
+	verifyEmail
 };

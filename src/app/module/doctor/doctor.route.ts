@@ -13,4 +13,6 @@ router.post(
 	DoctorController.applyAsDoctor,
 );
 
+router.post('/apply-as-doctor/verify-email', DoctorController.verifyEmail);
+
 export const DoctorRouter = router;
