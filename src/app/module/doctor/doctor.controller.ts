@@ -12,13 +12,13 @@ const applyAsDoctor = catchAsync(
 		const resume = files.resume ? files.resume[0] : null;
 		const additionalFiles = files.additionalFiles;
 
-        const data = ApplyAsDoctorSchema.safeParse(JSON.parse(req.body.data))
+		const data = ApplyAsDoctorSchema.safeParse(JSON.parse(req.body.data));
 
-        if(!data.success){
-            throw new Error(data.error.issues[0].message)
-        }
+		if (!data.success) {
+			throw new Error(data.error.issues[0].message);
+		}
 
-        const payLoad = data.data;
+		const payLoad = data.data;
 
 		const result = await DoctorServices.applyAsDoctor(
 			payLoad,
@@ -35,12 +35,22 @@ const applyAsDoctor = catchAsync(
 	},
 );
 
+const verifyDoctorEmail = catchAsync(
+	async (req: Request, res: Response, next: NextFunction) => {
+		const payLoad = req.body;
 
-const verifyEmail = catchAsync(async(req : Request, res : Response, next : NextFunction)=>{
+		const result = await DoctorServices.verifyDoctorEmail(payLoad);
 
-})
+		return sendResponse(res, {
+			success: true,
+			statusCode: status.OK,
+			message: "Doctor Email Verification Successfull.",
+			data: {},
+		});
+	},
+);
 
 export const DoctorController = {
 	applyAsDoctor,
-	verifyEmail
+	verifyDoctorEmail,
 };

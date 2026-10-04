@@ -1,11 +1,229 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="x-apple-disable-message-reformatting" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Doctor Application Verification - PH Healthcare</title>
+	<!--[if mso]>
+	<noscript>
+		<xml>
+			<o:OfficeDocumentSettings>
+				<o:PixelsPerInch>96</o:PixelsPerInch>
+			</o:OfficeDocumentSettings>
+		</xml>
+	</noscript>
+	<![endif]-->
+	<style type="text/css">
+		@media only screen and (max-width: 600px) {
+			.email-container {
+				width: 100% !important;
+				margin: 0 !important;
+				border-radius: 0 !important;
+			}
+			.content-cell {
+				padding: 24px 20px !important;
+			}
+			.otp-code {
+				font-size: 30px !important;
+				letter-spacing: 6px !important;
+			}
+			.cta-button {
+				width: 100% !important;
+				display: block !important;
+				box-sizing: border-box !important;
+				text-align: center !important;
+			}
+		}
+	</style>
 </head>
-<body>
-    
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color: #334155;">
+
+	<!-- Hidden Preheader for Inbox Snippet -->
+	<div style="display: none; font-size: 1px; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all;">
+		Your PH Healthcare doctor application verification code is <%= typeof otp !== 'undefined' ? otp : (typeof otpValue !== 'undefined' ? otpValue : '') %>. Verify your email to proceed with your onboarding.
+		&#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy;
+	</div>
+
+	<!-- Background Wrapper -->
+	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f1f5f9; padding: 40px 12px;">
+		<tr>
+			<td align="center">
+				<!-- Email Card -->
+				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="email-container" style="max-width: 580px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+					
+					<!-- Brand Header -->
+					<tr>
+						<td style="background: linear-gradient(135deg, #0f766e 0%, #0369a1 100%); padding: 32px 28px; text-align: center;">
+							<table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto;">
+								<tr>
+									<td style="vertical-align: middle; padding-right: 12px;">
+										<div style="background-color: rgba(255, 255, 255, 0.2); width: 40px; height: 40px; border-radius: 10px; text-align: center; line-height: 40px; font-size: 22px; color: #ffffff; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.3);">
+											✚
+										</div>
+									</td>
+									<td style="vertical-align: middle; text-align: left;">
+										<span style="color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; display: block; line-height: 1.2;">PH Healthcare</span>
+										<span style="color: #ccfbf1; font-size: 11px; font-weight: 600; letter-spacing: 1px; display: block; text-transform: uppercase;">Medical Practitioner & Doctor Portal</span>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+					<!-- Subheader Badge Bar -->
+					<tr>
+						<td style="background-color: #f0fdfa; border-bottom: 1px solid #ccfbf1; padding: 10px 24px; text-align: center;">
+							<span style="font-size: 12px; font-weight: 600; color: #0f766e; letter-spacing: 0.5px; text-transform: uppercase; display: inline-flex; align-items: center;">
+								🩺 Doctor Application &bull; Email Verification
+							</span>
+						</td>
+					</tr>
+
+					<!-- Content Body -->
+					<tr>
+						<td class="content-cell" style="padding: 36px 32px 24px 32px;">
+							<h1 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 700; color: #0f172a; letter-spacing: -0.2px;">
+								Verify Your Doctor Application
+							</h1>
+							
+							<p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #475569;">
+								Dear <%= (typeof name !== 'undefined' && name) ? (name.trim().toLowerCase().startsWith('dr') ? name.trim() : 'Dr. ' + name.trim()) : 'Doctor' %>,
+							</p>
+
+							<p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #475569;">
+								Thank you for applying to join the <strong>PH Healthcare Medical Network</strong>. We are thrilled at the prospect of collaborating with you to deliver high-standard medical care.
+							</p>
+
+							<p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #475569;">
+								To confirm your application and verify your official contact email, please enter the single-use verification code below:
+							</p>
+
+							<% if (typeof email !== 'undefined' && email) { %>
+							<!-- Account Info Tag -->
+							<div style="margin-bottom: 24px;">
+								<span style="display: inline-block; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 14px; font-size: 13px; color: #64748b;">
+									Application Email: <strong style="color: #0f172a;"><%= email %></strong>
+								</span>
+							</div>
+							<% } %>
+
+							<!-- OTP Showcase Card -->
+							<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0 28px 0;">
+								<tr>
+									<td align="center">
+										<div style="background-color: #f0fdfa; border: 2px dashed #0d9488; border-radius: 12px; padding: 24px 32px; display: inline-block; text-align: center; max-width: 100%; box-sizing: border-box;">
+											<div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #0f766e; margin-bottom: 8px;">
+												Doctor Verification Code
+											</div>
+											<div class="otp-code" style="font-size: 38px; font-weight: 800; letter-spacing: 8px; color: #0f766e; font-family: 'SF Mono', 'Courier New', Courier, monospace;">
+												<%= typeof otp !== 'undefined' ? otp : (typeof otpValue !== 'undefined' ? otpValue : '') %>
+											</div>
+											<div style="margin-top: 10px; font-size: 12px; color: #64748b;">
+												This code is valid for <strong><%= typeof expirationMinutes !== 'undefined' ? expirationMinutes : (typeof expirationMintues !== 'undefined' ? expirationMintues : (typeof expiration !== 'undefined' ? expiration : 60)) %> minutes</strong>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</table>
+
+							<% if (typeof verifyUrl !== 'undefined' && verifyUrl) { %>
+							<!-- Optional Direct Action Button -->
+							<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 0 0 28px 0;">
+								<tr>
+									<td align="center">
+										<a href="<%= verifyUrl %>" class="cta-button" style="display: inline-block; background: linear-gradient(135deg, #0f766e 0%, #0369a1 100%); color: #ffffff; text-decoration: none; font-weight: 600; font-size: 15px; padding: 14px 36px; border-radius: 8px; box-shadow: 0 2px 8px rgba(15, 118, 110, 0.25);">
+											Verify Doctor Email &rarr;
+										</a>
+									</td>
+								</tr>
+							</table>
+							<% } else { %>
+							<p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.5; color: #64748b; text-align: center;">
+								Enter this 6-digit verification code into the PH Healthcare application window to confirm your email.
+							</p>
+							<% } %>
+
+							<!-- Step-by-Step Info Box -->
+							<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; margin: 0 0 24px 0;">
+								<tr>
+									<td style="padding: 18px 20px;">
+										<div style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
+											What Happens Next:
+										</div>
+										<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 13px; line-height: 1.6; color: #475569;">
+											<tr>
+												<td style="vertical-align: top; width: 22px; color: #0d9488; font-weight: 700;">1.</td>
+												<td style="vertical-align: top; padding-bottom: 8px;">
+													<strong>Email Confirmation:</strong> Submit the code to verify your application email address.
+												</td>
+											</tr>
+											<tr>
+												<td style="vertical-align: top; width: 22px; color: #0d9488; font-weight: 700;">2.</td>
+												<td style="vertical-align: top; padding-bottom: 8px;">
+													<strong>Credential Review:</strong> Our administrative and medical credentialing board will review your medical credentials, resume, and submitted documents.
+												</td>
+											</tr>
+											<tr>
+												<td style="vertical-align: top; width: 22px; color: #0d9488; font-weight: 700;">3.</td>
+												<td style="vertical-align: top;">
+													<strong>Portal Activation:</strong> Upon successful approval, you will receive your portal access details to manage patient appointments and schedules.
+												</td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+							</table>
+
+							<!-- Security Notice Box -->
+							<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fef2f2; border: 1px solid #fee2e2; border-left: 4px solid #ef4444; border-radius: 8px; margin: 0 0 20px 0;">
+								<tr>
+									<td style="padding: 14px 16px;">
+										<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+											<tr>
+												<td style="vertical-align: top; width: 24px; font-size: 16px; color: #ef4444; line-height: 1.4;">
+													🛡️
+												</td>
+												<td style="vertical-align: top; padding-left: 8px; font-size: 13px; line-height: 1.5; color: #991b1b;">
+													<strong>Security & Confidentiality:</strong> Never disclose this verification code to anyone. PH Healthcare personnel will never request your one-time code. If you did not initiate this doctor application, please notify us immediately at <a href="mailto:support@phhealthcare.com" style="color: #991b1b; font-weight: 700; text-decoration: underline;">support@phhealthcare.com</a>.
+												</td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+							</table>
+
+							<p style="margin: 24px 0 0 0; font-size: 13px; line-height: 1.5; color: #94a3b8;">
+								Have questions about your doctor onboarding process? Our medical support team is here to help at <a href="mailto:support@phhealthcare.com" style="color: #0d9488; text-decoration: none; font-weight: 600;">support@phhealthcare.com</a>.
+							</p>
+						</td>
+					</tr>
+
+					<!-- Divider -->
+					<tr>
+						<td style="padding: 0 32px;">
+							<div style="height: 1px; background-color: #f1f5f9; width: 100%;"></div>
+						</td>
+					</tr>
+
+					<!-- Compliance & Corporate Footer -->
+					<tr>
+						<td style="padding: 24px 32px 32px 32px; text-align: center; font-size: 12px; line-height: 1.6; color: #94a3b8;">
+							<p style="margin: 0 0 6px 0;">
+								This is an automated administrative notification sent from the <strong>PH Healthcare Credentialing System</strong>.
+							</p>
+							<p style="margin: 0 0 8px 0;">
+								Please do not reply directly to this email as incoming messages to this address are not monitored.
+							</p>
+							<p style="margin: 0; color: #cbd5e1;">
+								&copy; <%= new Date().getFullYear() %> PH Healthcare, Inc. All rights reserved.
+							</p>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
 </body>
 </html>
