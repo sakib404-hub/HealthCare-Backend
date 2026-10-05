@@ -3,14 +3,21 @@ import type { UploadApiResponse } from "cloudinary";
 import crypto from "crypto";
 import ejs from "ejs";
 import path from "path";
-import { DoctorVerificationStatus, Role } from "../../../generated/prisma/enums";
+import {
+	DoctorVerificationStatus,
+	Role,
+} from "../../../generated/prisma/enums";
 import config from "../../config";
 import cloudinary from "../../lib/cloudinary";
 import transporter from "../../lib/nodeMailer";
 import { prisma } from "../../lib/prisma";
 import redisClient from "../../lib/redis";
 import type { RequestUser } from "../../middleware/checkAuth";
-import type { IApplyAsDoctorPayload, IApproveDoctorPayLoad, VerifyDoctorEmail } from "./doctor.interface";
+import type {
+	IApplyAsDoctorPayload,
+	IApproveDoctorPayLoad,
+	VerifyDoctorEmail,
+} from "./doctor.interface";
 
 const applyAsDoctor = async (
 	payLoad: IApplyAsDoctorPayload,
@@ -138,126 +145,151 @@ const verifyDoctorEmail = async (payLoad: VerifyDoctorEmail) => {
 	const email = payLoad.email.trim().toLowerCase();
 
 	const existingUser = await prisma.user.findUnique({
-		where : {
-			email : email,
-			role : Role.DOCTOR
-		}
+		where: {
+			email: email,
+			role: Role.DOCTOR,
+		},
 	});
 
-	if(!existingUser){
+	if (!existingUser) {
 		throw new Error("Doctor Application Not Found.");
 	}
 
-	if(existingUser.emailVerified){
+	if (existingUser.emailVerified) {
 		throw new Error("Email Already Verified.");
 	}
 
-	const optKey = `doctor-application-otp:${email}`
+	const optKey = `doctor-application-otp:${email}`;
 	const redisOtp = await redisClient.get(optKey);
 
-	//? if otp does not match with one another 
-	if(redisOtp !== otp){
+	//? if otp does not match with one another
+	if (redisOtp !== otp) {
 		throw new Error("Otp Does not Matched.Try Again");
 	}
 
 	//? when otp matched we will delete the redis otp and updated the user
-	await redisClient.del(optKey)
+	await redisClient.del(optKey);
 
 	const updatedUser = await prisma.user.update({
-		where : {
-			email : email,
+		where: {
+			email: email,
 		},
-		data : {
-			emailVerified : true
+		data: {
+			emailVerified: true,
 		},
-		omit : {
-			password : true
+		omit: {
+			password: true,
 		},
-		include : {
-			doctor : true
-		}
-	})
+		include: {
+			doctor: true,
+		},
+	});
 
 	return updatedUser;
 };
 
-const approveDoctor = async(payLoad : IApproveDoctorPayLoad, reviewedBy : RequestUser) {
-	const { doctorId , verificationStatus, rejectionReason} = payLoad;
+const approveDoctor = async (
+	payLoad: IApproveDoctorPayLoad,
+	reviewedBy: RequestUser,
+) => {
+	const { doctorId, verificationStatus, rejectionReason } = payLoad;
 
 	const existingDoctor = await prisma.doctor.findUnique({
-		where : {
-			id : doctorId
+		where: {
+			id: doctorId,
 		},
-		include : {
-			user : {
-				omit : {
-					password : true
-				}
-			}
-		}
-	})
+		include: {
+			user: {
+				omit: {
+					password: true,
+				},
+			},
+		},
+	});
 
-	if(!existingDoctor){
+	if (!existingDoctor) {
 		throw new Error("Doctor Not Found.");
 	}
 
-	if(existingDoctor.isDeleted){
+	if (existingDoctor.isDeleted) {
 		throw new Error("Doctor is Deleted.");
 	}
 
-	if(!existingDoctor.user.emailVerified){
-		throw new Error("Doctor Email is not verified.Application can not be approved.");
+	if (!existingDoctor.user.emailVerified) {
+		throw new Error(
+			"Doctor Email is not verified.Application can not be approved.",
+		);
 	}
 
-	if(existingDoctor.verifactionStatus !== DoctorVerificationStatus.PENDING){
-		throw new Error(`Doctor Verification Status is Already Been ${existingDoctor.verifactionStatus.toLowerCase()}`);
+	if (existingDoctor.verifactionStatus !== DoctorVerificationStatus.PENDING) {
+		throw new Error(
+			`Doctor Verification Status is Already Been ${existingDoctor.verifactionStatus.toLowerCase()}`,
+		);
 	}
 
-	//? we can do this with zod validation also 
-	if(verificationStatus === DoctorVerificationStatus.REJECTED && !rejectionReason){
+	//? we can do this with zod validation also
+	if (
+		verificationStatus === DoctorVerificationStatus.REJECTED &&
+		!rejectionReason
+	) {
 		throw new Error("Rejection Reason is Required.");
 	}
 
 	const updateDoctor = await prisma.doctor.update({
-		where : {
-			id : doctorId
+		where: {
+			id: doctorId,
 		},
-		data : {
-			verifactionStatus : verificationStatus,
-			rejectionReason : verificationStatus === DoctorVerificationStatus.REJECTED ? rejectionReason : null,
-			reviewedBy : reviewedBy.userId,
-			reviewedAt : new Date()
-		}
-	})
+		data: {
+			verifactionStatus: verificationStatus,
+			rejectionReason:
+				verificationStatus === DoctorVerificationStatus.REJECTED
+					? rejectionReason
+					: null,
+			reviewedBy: reviewedBy.userId,
+			reviewedAt: new Date(),
+		},
+	});
 
 	const isApproved = verificationStatus === DoctorVerificationStatus.APPROVED;
 
 	// approve-doctor.ejs
 	// reject-doctor.ejs
-	const templatePath = path.join(process.cwd(), `src/app/templates/${
-		isApproved ? 'approve-doctor.ejs' : 'reject-doctor.ejs'
-	}`);
+	const templatePath = path.join(
+		process.cwd(),
+		`src/app/templates/${
+			isApproved ? "approve-doctor.ejs" : "reject-doctor.ejs"
+		}`,
+	);
 
 	const templateData = {
-		name : updateDoctor.name,
-		reason : updateDoctor.rejectionReason
-	}
+		name: updateDoctor.name,
+		reason: updateDoctor.rejectionReason,
+	};
 
 	const html = await ejs.renderFile(templatePath, templateData);
 
 	await transporter.sendMail({
-		sender : config.smtp.sender,
-		to : updateDoctor.email,
-		subject : isApproved ? 'Your Doctor Application Has been Approved' : 'Your Doctor Application Has been Rejected',
-		html
-	})
+		sender: config.smtp.sender,
+		to: updateDoctor.email,
+		subject: isApproved
+			? "Your Doctor Application Has been Approved"
+			: "Your Doctor Application Has been Rejected",
+		html,
+	});
 
 	return updateDoctor;
+};
 
+const getAllDoctors = async()=>{
+	//? search , filter , sorting and pagination query 
+	const doctors = await prisma.doctor.findMany({});
+
+	return doctors;
 }
 
 export const DoctorServices = {
 	applyAsDoctor,
 	verifyDoctorEmail,
-	approveDoctor
+	approveDoctor,
+	getAllDoctors
 };

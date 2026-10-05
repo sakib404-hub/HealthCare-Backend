@@ -5,6 +5,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import { DoctorServices } from "./doctor.service";
 import { ApplyAsDoctorSchema } from "./doctor.validation";
 
+//? applying as a doctor
 const applyAsDoctor = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
 		const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -35,6 +36,8 @@ const applyAsDoctor = catchAsync(
 	},
 );
 
+
+//? verifying the email of the doctor
 const verifyDoctorEmail = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
 		const payLoad = req.body;
@@ -50,6 +53,7 @@ const verifyDoctorEmail = catchAsync(
 	},
 );
 
+//? appproving or rejecting the doctor
 const approveDoctor = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
 		const payLoad = req.body;
@@ -61,7 +65,23 @@ const approveDoctor = catchAsync(
 			success: true,
 			statusCode: status.OK,
 			message: "Doctor Status is Approved.",
-			data: {},
+			data: result,
+		});
+	},
+);
+
+
+//? getting all the doctor at once
+const getAllDoctors = catchAsync(
+	async (req: Request, res: Response, next: NextFunction) => {
+
+		const result = await DoctorServices.getAllDoctors();
+
+		return sendResponse(res, {
+			success: true,
+			statusCode: status.OK,
+			message: "Doctor Status is Approved.",
+			data: result,
 		});
 	},
 );
@@ -69,5 +89,6 @@ const approveDoctor = catchAsync(
 export const DoctorController = {
 	applyAsDoctor,
 	verifyDoctorEmail,
-	approveDoctor
+	approveDoctor,
+	getAllDoctors
 };

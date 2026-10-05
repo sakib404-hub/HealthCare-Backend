@@ -32,15 +32,13 @@ export interface IApplyAsDoctorPayload {
 	doctor: IDoctorPayload;
 }
 
-
 export interface VerifyDoctorEmail {
-	otp : string;
-	email : string;
-} 
-
+	otp: string;
+	email: string;
+}
 
 export interface IApproveDoctorPayLoad {
-	doctorId : string;
-	verificationStatus : DoctorVerificationStatus;
-	rejectionReason ? : string;
-} 
+	doctorId: string;
+	verificationStatus: DoctorVerificationStatus;
+	rejectionReason?: string;
+}

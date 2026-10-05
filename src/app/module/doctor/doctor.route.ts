@@ -20,6 +20,13 @@ router.post(
 	DoctorController.verifyDoctorEmail,
 );
 
-router.post('/approve-doctor',auth(Role.ADMIN, Role.SUPER_ADMIN), DoctorController.approveDoctor);
+router.post(
+	"/approve-doctor",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	DoctorController.approveDoctor,
+);
+
+
+router.get('/get-all-doctor',auth(Role.ADMIN, Role.SUPER_ADMIN), DoctorController.getAllDoctors);
 
 export const DoctorRouter = router;
