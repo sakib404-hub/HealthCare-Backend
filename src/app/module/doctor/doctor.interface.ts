@@ -42,3 +42,15 @@ export interface IApproveDoctorPayLoad {
 	verificationStatus: DoctorVerificationStatus;
 	rejectionReason?: string;
 }
+
+//? for the query perams
+export interface IQuery   {
+	searchTerm ? : string;
+	page ? : string ;
+	limit ? : string;
+	sortOrder ? : string;
+	sortBy ? : string;
+
+	//? any other filter or query perameter is added here
+	[key : string]  : any;
+}
