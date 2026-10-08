@@ -5,7 +5,7 @@ export interface ICreateSchedulePayLoad {
 }
 
 export interface IGetMyScheduleQuery {
-   searchTerm ? : string;
+    searchTerm ? : string;
 	page ? : string ;
 	limit ? : string;
 	sortOrder ? : string;
