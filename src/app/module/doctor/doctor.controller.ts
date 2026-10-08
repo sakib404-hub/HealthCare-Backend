@@ -48,7 +48,7 @@ const verifyDoctorEmail = catchAsync(
 			success: true,
 			statusCode: status.OK,
 			message: "Doctor Email Verification Successfull.",
-			data: {},
+			data: result,
 		});
 	},
 );
