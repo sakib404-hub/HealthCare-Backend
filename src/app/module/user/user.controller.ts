@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import status from "http-status";
+import { AppError } from "../../utils/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { UserServices } from "./user.service";
@@ -7,7 +8,7 @@ import { UserServices } from "./user.service";
 const uploadProfileImage = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
 		if (!req.file) {
-			throw new Error("No File Provided.");
+			throw new AppError(status.BAD_REQUEST, "No File Provided.");
 		}
 
 		const userId = req.user?.userId;

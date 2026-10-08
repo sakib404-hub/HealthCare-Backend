@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
+import httpStatus from "http-status";
 import type z from "zod";
+import { AppError } from "../utils/AppError";
 import { catchAsync } from "../utils/catchAsync";
 
 export const validateRequest = (zodSchema: z.ZodObject) => {
@@ -9,7 +11,10 @@ export const validateRequest = (zodSchema: z.ZodObject) => {
 		const result = zodSchema.safeParse(payLoad);
 
 		if (!result.success) {
-			throw new Error(result.error.issues[0].message);
+			throw new AppError(
+				httpStatus.BAD_REQUEST,
+				result.error.issues[0].message,
+			);
 		}
 
 		//? assigning the body again

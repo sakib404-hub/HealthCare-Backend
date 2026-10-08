@@ -1,0 +1,33 @@
+model Schedule {
+    id String @id @default(uuid())
+
+
+    startDateTime DateTime
+    endDateTime DateTime
+
+    totalSlot Int
+    availableSlot Int
+    meetLink String
+
+    status ScheduleStatus @default(DRAFT)
+
+    isDeleted Boolean @default(false)
+    deletedAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+
+    //? relation with the doctor model
+    doctorId String
+    doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+
+    //? relation with the appointment
+    appointment Appointment[]
+
+    //? a doctor can set up his schdule once at a time
+    @@unique([doctorId, startDateTime, endDateTime], name : "unique_schedule")
+
+    @@map("schedules")
+}

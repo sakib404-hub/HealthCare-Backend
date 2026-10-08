@@ -2,24 +2,26 @@ import bcrypt from "bcryptjs";
 import type { UploadApiResponse } from "cloudinary";
 import crypto from "crypto";
 import ejs from "ejs";
+import httpStatus from "http-status";
 import path from "path";
 import {
 	DoctorVerificationStatus,
 	Role,
 } from "../../../generated/prisma/enums";
+import type { DoctorWhereInput } from "../../../generated/prisma/models";
 import config from "../../config";
 import cloudinary from "../../lib/cloudinary";
 import transporter from "../../lib/nodeMailer";
 import { prisma } from "../../lib/prisma";
 import redisClient from "../../lib/redis";
 import type { RequestUser } from "../../middleware/checkAuth";
+import { AppError } from "../../utils/AppError";
 import type {
 	IApplyAsDoctorPayload,
 	IApproveDoctorPayLoad,
 	IQuery,
 	VerifyDoctorEmail,
 } from "./doctor.interface";
-import { DoctorWhereInput } from "../../../generated/prisma/models";
 
 const applyAsDoctor = async (
 	payLoad: IApplyAsDoctorPayload,
@@ -35,7 +37,10 @@ const applyAsDoctor = async (
 	});
 
 	if (isUserExist) {
-		throw new Error("User with this email Already Exists.");
+		throw new AppError(
+			httpStatus.CONFLICT,
+			"User with this email Already Exists.",
+		);
 	}
 
 	//? uploading resume and additional files
@@ -47,7 +52,12 @@ const applyAsDoctor = async (
 						return reject(error);
 					}
 					if (result === undefined) {
-						return reject(new Error("No result returned from cloudinary."));
+						return reject(
+							new AppError(
+								httpStatus.INTERNAL_SERVER_ERROR,
+								"No result returned from cloudinary.",
+							),
+						);
 					}
 					resolve(result);
 				})
@@ -65,7 +75,12 @@ const applyAsDoctor = async (
 							return reject(error);
 						}
 						if (result === undefined) {
-							return reject(new Error("No result returned from cloudinary."));
+							return reject(
+								new AppError(
+									httpStatus.INTERNAL_SERVER_ERROR,
+									"No result returned from cloudinary.",
+								),
+							);
 						}
 						resolve(result);
 					})

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import status from "http-status";
+import { AppError } from "../../utils/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { DoctorServices } from "./doctor.service";
@@ -16,7 +17,7 @@ const applyAsDoctor = catchAsync(
 		const data = ApplyAsDoctorSchema.safeParse(JSON.parse(req.body.data));
 
 		if (!data.success) {
-			throw new Error(data.error.issues[0].message);
+			throw new AppError(status.BAD_REQUEST, data.error.issues[0].message);
 		}
 
 		const payLoad = data.data;
