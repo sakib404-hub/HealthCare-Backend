@@ -5,3 +5,7 @@ export interface PayAppointment {
 export interface CancelAppointment {
 	appointmentId: string;
 }
+
+export interface BookAppointments{
+	scheduleId : string;
+}
