@@ -4,13 +4,14 @@ import type { Application, NextFunction, Request, Response } from "express";
 import express from "express";
 import httpStatus from "http-status";
 import config from "./app/config";
+import { getBkashIdToken } from "./app/lib/bkash";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
-import { AuthRoutes } from "./app/module/auth/auth.route";
-import { UserRoutes } from "./app/module/user/user.route";
-import { getBkashIdToken } from "./app/lib/bkash";
 import { AppointmentRouter } from "./app/module/appointment/appointment.route";
+import { AuthRoutes } from "./app/module/auth/auth.route";
 import { DoctorRouter } from "./app/module/doctor/doctor.route";
+import { ScheduleRouter } from "./app/module/schedule/schedule.route";
+import { UserRoutes } from "./app/module/user/user.route";
 
 const app: Application = express();
 
@@ -35,6 +36,8 @@ app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/appointment", AppointmentRouter);
 
 app.use("/api/v1/doctor", DoctorRouter);
+
+app.use("/api/v1/schedule", ScheduleRouter);
 
 app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
 	try {

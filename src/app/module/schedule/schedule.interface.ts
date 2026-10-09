@@ -5,9 +5,9 @@ export interface ICreateSchedulePayLoad {
 }
 
 export interface IUpdateSchedule {
-	startDateTime ?: Date;
-	endDateTime ?: Date;
-	meetLink ?: string;
+	startDateTime?: Date;
+	endDateTime?: Date;
+	meetLink?: string;
 }
 
 export interface IGetMyScheduleQuery {
