@@ -1,4 +1,4 @@
-import type{ DoctorVerificationStatus } from "../../../generated/prisma/enums";
+import type { DoctorVerificationStatus } from "../../../generated/prisma/enums";
 
 export interface IUserPayload {
 	name: string;
@@ -44,13 +44,13 @@ export interface IApproveDoctorPayLoad {
 }
 
 //? for the query perams
-export interface IQuery   {
-	searchTerm ? : string;
-	page ? : string ;
-	limit ? : string;
-	sortOrder ? : string;
-	sortBy ? : string;
+export interface IQuery {
+	searchTerm?: string;
+	page?: string;
+	limit?: string;
+	sortOrder?: string;
+	sortBy?: string;
 
 	//? any other filter or query perameter is added here
-	[key : string]  : any;
+	[key: string]: any;
 }

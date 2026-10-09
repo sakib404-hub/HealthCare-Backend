@@ -26,7 +26,10 @@ router.post(
 	DoctorController.approveDoctor,
 );
 
-
-router.get('/get-all-doctor',auth(Role.ADMIN, Role.SUPER_ADMIN), DoctorController.getAllDoctors);
+router.get(
+	"/get-all-doctor",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	DoctorController.getAllDoctors,
+);
 
 export const DoctorRouter = router;

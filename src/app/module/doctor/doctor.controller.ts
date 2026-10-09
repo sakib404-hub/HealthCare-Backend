@@ -37,7 +37,6 @@ const applyAsDoctor = catchAsync(
 	},
 );
 
-
 //? verifying the email of the doctor
 const verifyDoctorEmail = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
@@ -71,11 +70,9 @@ const approveDoctor = catchAsync(
 	},
 );
 
-
 //? getting all the doctor at once
 const getAllDoctors = catchAsync(
 	async (req: Request, res: Response, next: NextFunction) => {
-
 		const query = req.query;
 
 		const result = await DoctorServices.getAllDoctors(query);
@@ -93,5 +90,5 @@ export const DoctorController = {
 	applyAsDoctor,
 	verifyDoctorEmail,
 	approveDoctor,
-	getAllDoctors
+	getAllDoctors,
 };
