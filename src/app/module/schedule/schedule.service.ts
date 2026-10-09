@@ -1,4 +1,4 @@
-import { addDays, differenceInMinutes, startOfDay } from "date-fns";
+import { addDays, differenceInMinutes, isAfter, isSameDay, startOfDay } from "date-fns";
 import status from "http-status";
 import { ScheduleStatus } from "../../../generated/prisma/enums";
 import type { ScheduleWhereInput } from "../../../generated/prisma/models";
@@ -26,6 +26,14 @@ const createSchedule = async (
 
 	if (!doctor) {
 		throw new AppError(status.NOT_FOUND, "Doctor Not Found.");
+	}
+
+	if(!isSameDay(new Date(payLoad.startDateTime), new Date(payLoad.endDateTime))){
+		throw new AppError(status.CONFLICT, "Creating a schedule require same day starting and ending tiem");
+	}
+
+	if(isAfter(payLoad.startDateTime, payLoad.endDateTime)){
+		throw new AppError(status.CONFLICT, "Start Date Time can not be after the end date time.")
 	}
 
 	const startOfTheDay = startOfDay(payLoad.startDateTime); //? 25 August 12.00AM
@@ -446,6 +454,118 @@ const deleteSchedule = async(scheduleId : string, user : RequestUser)=>{
   return deleteSchedule;
 }
 
+const getTodaysSchedule = async(query : IQuery)=>{
+  const limit = query.limit ? Number(query.limit) : 10;
+  const page = query.page ? Number(query.page) : 1;
+  const skip = (page - 1) * limit;
+  const sortBy = query.sortBy ? query.sortBy : "createdAt";
+  const sortOrder = query.sortOrder ? query.sortOrder : "desc";
+
+  const now = new Date();
+  const startOfToday = startOfDay(now);
+  const startOfTomorrow = addDays(startOfToday, 1);
+
+  //? filter for only todays current date 
+  const andConditions : ScheduleWhereInput[] = [
+	{
+		doctorId : query.doctorId
+	},
+    {
+      isDeleted : false 
+    },
+    {
+      status : ScheduleStatus.PUBLISHED
+    },
+    {
+      startDateTime : {
+        gte : startOfToday,
+        lt : startOfTomorrow,
+        gt : now
+      }
+    },
+	{
+		availableSlot : {
+			gt : 0
+		}
+	}
+  ];
+
+  //? adding the filter
+  if(query.specialization){
+	andConditions.push({
+		doctor : {
+			specialization : { 
+				equals : query.specialization, mode : "insensitive"
+			}
+		}
+	})
+  }
+
+  if(query.searchTerm){
+	andConditions.push({
+		doctor : {
+			OR : [
+				{
+					name : {
+						contains : query.searchTerm, mode : "insensitive"
+					}
+				},
+				{
+					specialization : {
+						contains : query.searchTerm, mode : "insensitive"
+					}
+				}
+			]
+		}
+	})
+  }
+
+  if(query.doctorId){
+    throw new AppError(status.NOT_FOUND, "Doctor Id Must be Provided in the Query.");
+  }
+
+  const doctor = await prisma.doctor.findUnique({
+    where : {
+      id : query.doctorId
+    }
+  })
+  if(!doctor){
+    throw new AppError(status.NOT_FOUND, "Doctor Profile Not Found.")
+  }
+
+  //? finding the schedules
+  const schedules = await prisma.schedule.findMany({
+	where : {
+		AND : andConditions
+	}, 
+	take : limit,
+	skip,
+	orderBy : {
+		[sortBy] : sortOrder
+	},
+	include : {
+		doctor : true
+	}
+  })
+
+  const total = await prisma.schedule.count({
+	where :{
+		AND : andConditions
+	}
+  })
+
+  return {
+	data : schedules,
+	meta : {
+		page, 
+		limit,
+		total,
+		totalPages : Math.ceil(total / limit)
+	}
+  }
+
+}
+
 export const ScheduleServices = {
 	createSchedule,
 	getMySchedules,
@@ -453,5 +573,6 @@ export const ScheduleServices = {
 	getScheduleById,
   updateSchedule,
   publishSchedule,
-  deleteSchedule
+  deleteSchedule,
+  getTodaysSchedule
 };
