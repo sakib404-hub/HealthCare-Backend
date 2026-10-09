@@ -365,10 +365,93 @@ const updateSchedule = async(scheduleId : string, payLoad : IUpdateSchedule, use
   
 }
 
+
+const publishSchedule = async(scheduleId : string, user : RequestUser)=>{
+  const doctor = await prisma.doctor.findUnique({
+    where : {
+      userId : user.userId
+    }
+  })
+
+  if(!doctor){
+    throw new AppError(status.NOT_FOUND, "Doctor Not Found.");
+  }
+
+  const schedule = await prisma.schedule.findUnique({
+    where : {
+      id : scheduleId,
+      doctorId : doctor.id
+    }
+  })
+
+  if(!schedule){
+     throw new AppError(status.NOT_FOUND,  "Schedule not Found.");
+  }
+
+  if(schedule.status === ScheduleStatus.PUBLISHED){
+    throw new AppError(status.CONFLICT, "Schedule is Already Published");
+  }
+
+  const publishedSchedule = await prisma.schedule.update({
+    where : {
+      id : scheduleId,
+      doctorId : user.userId
+    },
+    data : {
+      status : ScheduleStatus.PUBLISHED
+    }
+  })
+
+  return publishedSchedule;
+}
+
+const deleteSchedule = async(scheduleId : string, user : RequestUser)=>{
+
+  const doctor = await prisma.doctor.findUnique({
+    where : {
+      userId : user.userId
+    }
+  })
+
+  if(!doctor){
+    throw new AppError(status.NOT_FOUND, "Doctor Not Found.");
+  }
+
+  const schedule = await prisma.schedule.findUnique({
+    where : {
+      id : scheduleId,
+      doctorId : doctor.id
+    }
+  })
+
+  if(!schedule){
+     throw new AppError(status.NOT_FOUND,  "Schedule not Found.");
+  }
+
+  if(schedule.status === ScheduleStatus.PUBLISHED || schedule.availableSlot !== schedule.totalSlot){
+    throw new AppError(status.CONFLICT, "Schedule is Already Published and there is booking therefore you can not delete it.");
+  }
+
+  const deleteSchedule =  await prisma.schedule.update({
+    where : {
+      id : scheduleId,
+      doctorId : user.userId
+    },
+    data : {
+      isDeleted : true,
+      deletedAt : new Date()
+    }
+  })
+
+  return deleteSchedule;
+}
+
 export const ScheduleServices = {
 	createSchedule,
 	getMySchedules,
 	getAllSchedule,
 	getScheduleById,
-  updateSchedule
+  updateSchedule,
+  publishSchedule,
+  deleteSchedule
 };
